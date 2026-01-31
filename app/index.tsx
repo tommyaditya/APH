@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   Dimensions,
   FlatList,
+  Image,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -18,13 +18,17 @@ import { ErrorState } from '../components/ErrorState';
 import { ShimmerCard } from '../components/Shimmer';
 import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useTheme } from '../hooks/useTheme';
-import api, { Wisata } from '../utils/api';
+import { fetchWisata as fetchAllWisata, Wisata } from '../utils/api';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+
+const CATEGORIES = ['Semua', 'Gunung', 'Pantai', 'Sejarah', 'Kuliner', 'Budaya'];
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const router = useRouter();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [activeCategory, setActiveCategory] = useState('Semua');
 
   const {
     data: destinations,
@@ -32,7 +36,7 @@ export default function HomeScreen() {
     error,
     refetch,
   } = useCachedFetch<Wisata[]>(
-    () => api.fetchAllWisata(),
+    () => fetchAllWisata(),
     'destinations'
   );
 
@@ -40,56 +44,27 @@ export default function HomeScreen() {
     refetch();
   }, [refetch]);
 
-  const renderDestination = useCallback(({ item }: { item: Wisata }) => (
-    <Card item={item} />
-  ), []);
+  const renderDestination = useCallback(({ item }: { item: Wisata }) => {
+    return <Card item={item} />;
+  }, []);
 
-  const renderShimmerCards = () => (
+  const renderShimmerCards = useCallback(() => (
     <>
       {[...Array(3)].map((_, index) => (
         <ShimmerCard key={`shimmer-${index}`} />
       ))}
     </>
-  );
+  ), []);
 
-  const features = [
-    {
-      icon: 'map',
-      title: 'Peta Interaktif',
-      description: 'Jelajahi destinasi wisata Indonesia dengan peta yang mudah digunakan'
-    },
-    {
-      icon: 'search',
-      title: 'Pencarian Canggih',
-      description: 'Temukan destinasi berdasarkan kategori, rating, dan lokasi'
-    },
-    {
-      icon: 'cloud',
-      title: 'Info Cuaca',
-      description: 'Dapatkan informasi cuaca terkini untuk perencanaan perjalanan'
-    },
-    {
-      icon: 'heart',
-      title: 'Favorit',
-      description: 'Simpan destinasi favorit Anda untuk akses cepat'
-    },
-    {
-      icon: 'location',
-      title: 'Lokasi Saat Ini',
-      description: 'Temukan destinasi terdekat dari lokasi Anda'
-    },
-    {
-      icon: 'information-circle',
-      title: 'Detail Lengkap',
-      description: 'Informasi lengkap tentang setiap destinasi wisata'
-    }
-  ];
+  const filteredDestinations = destinations?.filter(item =>
+    activeCategory === 'Semua' || item.kategori === activeCategory
+  );
 
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ErrorState
-          message="Failed to load destinations. Please check your connection and try again."
+          message="Gagal memuat destinasi. Periksa koneksi Anda."
           onRetry={handleRefresh}
         />
       </SafeAreaView>
@@ -99,7 +74,9 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
             refreshing={loading}
@@ -109,166 +86,142 @@ export default function HomeScreen() {
           />
         }
       >
-        {/* Hero Section */}
-        <LinearGradient
-          colors={[colors.primary, colors.primaryLight]}
-          style={styles.heroSection}
-        >
-          <View style={styles.heroContent}>
-            <Text style={[styles.heroTitle, { color: '#fff' }]}>
-              Jelajahi Keindahan{'\n'}Indonesia
-            </Text>
-            <Text style={[styles.heroSubtitle, { color: '#fff', opacity: 0.9 }]}>
-              Temukan destinasi wisata terbaik di Indonesia dengan peta interaktif dan informasi lengkap
-            </Text>
-            <View style={styles.heroButtons}>
-              <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: '#fff' }]}
-                onPress={() => router.push('/map')}
-                accessibilityLabel="Explore map"
-                accessibilityHint="Navigate to interactive map"
-              >
-                <Ionicons name="map" size={20} color={colors.primary} />
-                <Text style={[styles.primaryButtonText, { color: colors.primary }]}>
-                  Jelajahi Peta
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.secondaryButton, { borderColor: '#fff' }]}
-                onPress={() => {/* Scroll to features */}}
-                accessibilityLabel="Learn more"
-                accessibilityHint="Scroll to features section"
-              >
-                <Text style={[styles.secondaryButtonText, { color: '#fff' }]}>
-                  Pelajari Lebih Lanjut
-                </Text>
-              </TouchableOpacity>
-            </View>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Selamat Pagi,</Text>
+            <Text style={[styles.userName, { color: colors.text }]}>Petualang!</Text>
           </View>
-        </LinearGradient>
+          <TouchableOpacity
+            style={[styles.avatarContainer, { backgroundColor: colors.primaryLight }]}
+            accessibilityLabel="User Profile"
+          >
+            <Ionicons name="person" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-        {/* Destination List */}
-        <View style={[styles.destinationsSection, { backgroundColor: colors.surface }]}>
+        {/* Search Bar Placeholder */}
+        <TouchableOpacity
+          style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          activeOpacity={0.8}
+          accessibilityLabel="Search destinations"
+        >
+          <Ionicons name="search" size={20} color={colors.textTertiary} />
+          <Text style={[styles.searchText, { color: colors.textTertiary }]}>
+            Cari destinasi impianmu...
+          </Text>
+        </TouchableOpacity>
+
+        {/* Categories */}
+        <View style={styles.categoriesSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesList}
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = cat === activeCategory;
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.categoryChip,
+                    isActive
+                      ? { backgroundColor: colors.primary }
+                      : { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }
+                  ]}
+                  onPress={() => setActiveCategory(cat)}
+                >
+                  <Text style={[
+                    styles.categoryText,
+                    isActive ? { color: '#fff' } : { color: colors.textSecondary }
+                  ]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Popular Destinations */}
+        <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Destinasi Populer
+              {activeCategory === 'Semua' ? 'Sedang Populer' : `Wisata ${activeCategory}`}
             </Text>
-            <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-              Jelajahi destinasi wisata terbaik di Indonesia
-            </Text>
+            <TouchableOpacity onPress={() => { }}>
+              <Text style={[styles.seeAll, { color: colors.primary }]}>Lihat Semua</Text>
+            </TouchableOpacity>
           </View>
 
           {loading ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.destinationsList}
-            >
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
               {renderShimmerCards()}
             </ScrollView>
           ) : (
             <FlatList
-              data={destinations?.slice(0, 6) || []}
+              data={filteredDestinations || []}
               renderItem={renderDestination}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.destinationsList}
+              contentContainerStyle={styles.horizontalList}
+              keyExtractor={(item) => `pop-${item.id}`}
+              initialNumToRender={4}
+              windowSize={3}
+              maxToRenderPerBatch={3}
+              removeClippedSubviews={true}
               ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                    No destinations available
-                  </Text>
+                <View style={styles.emptyState}>
+                  <Ionicons name="leaf-outline" size={48} color={colors.textTertiary} />
+                  <Text style={{ color: colors.textSecondary, marginTop: 8 }}>Belum ada data untuk kategori ini</Text>
                 </View>
               }
             />
           )}
         </View>
 
-        {/* Features Section */}
-        <View style={[styles.featuresSection, { backgroundColor: colors.background }]}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Fitur Unggulan
-            </Text>
-            <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-              Temukan semua yang Anda butuhkan untuk merencanakan perjalanan wisata yang sempurna
-            </Text>
+        {/* Explore Map Banner */}
+        <TouchableOpacity
+          style={[styles.mapBanner, { backgroundColor: colors.surface }]}
+          onPress={() => router.push('/map')}
+          activeOpacity={0.9}
+        >
+          <View style={[styles.mapOverlay, { backgroundColor: colors.primary }]}>
+            <Ionicons name="map" size={24} color="#fff" />
+            <View style={styles.mapTextContainer}>
+              <Text style={styles.mapTitle}>Peta Interaktif</Text>
+              <Text style={styles.mapSubtitle}>Jelajahi lokasi di sekitarmu</Text>
+            </View>
+            <Ionicons name="arrow-forward-circle" size={32} color="#fff" />
           </View>
+        </TouchableOpacity>
 
-          <View style={styles.featuresGrid}>
-            {features.map((feature, index) => (
-              <View
-                key={`feature-${index}`}
-                style={[
-                  styles.featureCard,
-                  {
-                    backgroundColor: colors.cardBackground,
-                    shadowColor: colors.shadow,
-                  },
-                ]}
+        {/* Recommended "For You" (Vertical List Mockup) */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 16 }]}>Rekomendasi Untukmu</Text>
+          {destinations?.slice(0, 3).map((item) => {
+            if (!item) return null;
+            return (
+              <TouchableOpacity
+                key={`rec-${item.id}`}
+                style={[styles.recCard, { backgroundColor: colors.surface }]}
+                onPress={() => router.push(`/detail/${item.id}`)}
               >
-                <View style={[styles.featureIcon, { backgroundColor: colors.surfaceSecondary }]}>
-                  <Ionicons name={feature.icon as any} size={32} color={colors.primary} />
+                <Image source={{ uri: item.images?.[0] || 'https://via.placeholder.com/150' }} style={styles.recImage} />
+                <View style={styles.recContent}>
+                  <Text style={[styles.recTitle, { color: colors.text }]} numberOfLines={1}>{item.nama}</Text>
+                  <Text style={[styles.recLoc, { color: colors.textSecondary }]} numberOfLines={1}>{item.location}</Text>
+                  <View style={styles.recRating}>
+                    <Ionicons name="star" size={12} color="#F59E0B" />
+                    <Text style={[styles.recRatingText, { color: colors.textSecondary }]}>{item.rating}</Text>
+                  </View>
                 </View>
-                <Text style={[styles.featureTitle, { color: colors.text }]}>
-                  {feature.title}
-                </Text>
-                <Text style={[styles.featureDescription, { color: colors.textSecondary }]}>
-                  {feature.description}
-                </Text>
-              </View>
-            ))}
-          </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* About Section */}
-        <View style={[styles.aboutSection, { backgroundColor: colors.surface }]}>
-          <View style={styles.aboutContent}>
-            <View style={styles.aboutText}>
-              <Text style={[styles.aboutTitle, { color: colors.text }]}>
-                Tentang Aplikasi
-              </Text>
-              <Text style={[styles.aboutDescription, { color: colors.textSecondary }]}>
-                Peta Pariwisata Indonesia adalah aplikasi mobile yang dirancang untuk membantu wisatawan domestik dan mancanegara menjelajahi keindahan Indonesia. Dengan teknologi peta interaktif terkini, informasi cuaca real-time, dan detail lengkap tentang setiap destinasi, aplikasi ini menjadi panduan wisata terpercaya untuk perjalanan Anda.
-              </Text>
-              <Text style={[styles.aboutDescription, { color: colors.textSecondary }]}>
-                Dari candi bersejarah hingga pantai tropis, gunung megah hingga kuliner khas daerah, semua dapat Anda temukan dalam satu aplikasi. Mulai jelajahi sekarang dan buat kenangan tak terlupakan di tanah air tercinta.
-              </Text>
-            </View>
-            <View style={styles.aboutImage}>
-              <View style={[styles.placeholderImage, { backgroundColor: colors.surfaceSecondary }]}>
-                <Ionicons name="images" size={64} color={colors.textTertiary} />
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* CTA Section */}
-        <View style={styles.ctaSection}>
-          <LinearGradient
-            colors={[colors.primary, colors.primaryLight]}
-            style={styles.ctaContent}
-          >
-            <Text style={[styles.ctaTitle, { color: '#fff' }]}>
-              Siap Memulai Petualangan?
-            </Text>
-            <Text style={[styles.ctaSubtitle, { color: '#fff', opacity: 0.9 }]}>
-              Jelajahi ribuan destinasi wisata Indonesia sekarang juga
-            </Text>
-            <TouchableOpacity
-              style={[styles.ctaButton, { backgroundColor: '#fff' }]}
-              onPress={() => router.push('/map')}
-              accessibilityLabel="Start exploring"
-              accessibilityHint="Navigate to map screen"
-            >
-              <Text style={[styles.ctaButtonText, { color: colors.primary }]}>
-                Mulai Jelajah
-              </Text>
-              <Ionicons name="arrow-forward" size={20} color={colors.primary} />
-            </TouchableOpacity>
-          </LinearGradient>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -278,192 +231,146 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  heroSection: {
-    height: height * 0.7,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  heroContent: {
-    alignItems: 'center',
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 40,
-  },
-  heroSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 32,
-  },
-  heroButtons: {
+  header: {
     flexDirection: 'row',
-    gap: 16,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  primaryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryButton: {
-    borderWidth: 2,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  destinationsSection: {
-    padding: 20,
-  },
-  sectionHeader: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  sectionTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  sectionSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  destinationsList: {
-    paddingVertical: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  featuresSection: {
-    padding: 20,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-  },
-  featureCard: {
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    width: (width - 60) / 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
     alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 20,
   },
-  featureIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  featureTitle: {
+  greeting: {
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontFamily: 'System',
   },
-  featureDescription: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  aboutSection: {
-    padding: 20,
-  },
-  aboutContent: {
-    flexDirection: width > 768 ? 'row' : 'column',
-    alignItems: 'center',
-    gap: 32,
-  },
-  aboutText: {
-    flex: 1,
-  },
-  aboutTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  aboutDescription: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  aboutImage: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  placeholderImage: {
-    width: 300,
-    height: 200,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaSection: {
-    margin: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  ctaContent: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  ctaTitle: {
+  userName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontWeight: '700',
+    fontFamily: 'System',
   },
-  ctaSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    opacity: 0.9,
+  avatarContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 24,
+    gap: 10,
+  },
+  searchText: {
+    fontSize: 14,
+  },
+  categoriesSection: {
     marginBottom: 24,
   },
-  ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+  categoriesList: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  categoryChip: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 25,
   },
-  ctaButtonText: {
+  categoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  sectionContainer: {
+    marginBottom: 28,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  seeAll: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  horizontalList: {
+    paddingHorizontal: 20,
+    paddingBottom: 20, // space for shadows
+  },
+  emptyState: {
+    width: width - 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  mapBanner: {
+    marginHorizontal: 20,
+    height: 100,
+    borderRadius: 20,
+    marginBottom: 28,
+    overflow: 'hidden',
+  },
+  mapOverlay: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    gap: 16,
+  },
+  mapTextContainer: {
+    flex: 1,
+  },
+  mapTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  mapSubtitle: {
+    color: '#E0F2F1',
+    fontSize: 13,
+  },
+  recCard: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 10,
+    borderRadius: 16,
+    alignItems: 'center',
+    gap: 14,
+  },
+  recImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+  },
+  recContent: {
+    flex: 1,
+  },
+  recTitle: {
     fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  recLoc: {
+    fontSize: 13,
+    marginBottom: 6,
+  },
+  recRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  recRatingText: {
+    fontSize: 12,
     fontWeight: '600',
   },
 });

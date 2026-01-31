@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
-  Dimensions,
-  Image,
+  ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,59 +12,58 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorState } from '../components/ErrorState';
 import { Header } from '../components/Header';
-import { ShimmerDetail } from '../components/Shimmer';
+import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useTheme } from '../hooks/useTheme';
-import api, { Wisata } from '../utils/api';
+import { fetchWisata as fetchAllWisata, Wisata } from '../utils/api';
 
-const { width, height } = Dimensions.get('window');
+// Constants
+const INDONESIA_CENTER = {
+  latitude: -2.5489,
+  longitude: 118.0149,
+  latitudeDelta: 20,
+  longitudeDelta: 50,
+};
+
+const MIN_COORDINATE_VALUE = 0.001;
 
 export default function MapScreen() {
   const { colors } = useTheme();
   const router = useRouter();
-  const [wisata, setWisata] = useState<Wisata[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [selectedWisata, setSelectedWisata] = useState<Wisata | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-        const data = await api.fetchAllWisata();
-        setWisata(data);
-      } catch (err) {
-        console.error('Error fetching wisata:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+  const {
+    data: wisata = [],
+    loading,
+    error,
+    refetch,
+  } = useCachedFetch<Wisata[]>(
+    () => fetchAllWisata(),
+    'map-destinations'
+  );
+
+  // Memoize filtered wisata to avoid filtering on every render
+  const validWisata = useMemo(
+    () => (wisata || []).filter(item =>
+      item && item.coordinates &&
+      Math.abs(item.coordinates.latitude) > MIN_COORDINATE_VALUE &&
+      Math.abs(item.coordinates.longitude) > MIN_COORDINATE_VALUE
+    ),
+    [wisata]
+  );
+
+  const handleMarkerPress = useCallback((item: Wisata) => {
+    setSelectedWisata(item);
   }, []);
 
-  const initialRegion = {
-    latitude: -2.5489, // Center of Indonesia
-    longitude: 118.0149,
-    latitudeDelta: 15,
-    longitudeDelta: 15,
-  };
-
-  const handleMarkerPress = (item: Wisata) => {
-    setSelectedWisata(item);
-  };
-
-  const handleCardPress = () => {
+  const handleCardPress = useCallback(() => {
     if (selectedWisata) {
       router.push(`/detail/${selectedWisata.id}`);
     }
-  };
+  }, [selectedWisata, router]);
 
-  const handleRetry = () => {
-    setError(false);
-    setLoading(true);
-    api.fetchAllWisata().then(setWisata).catch(() => setError(true)).finally(() => setLoading(false));
-  };
+  const handleCloseCard = useCallback(() => {
+    setSelectedWisata(null);
+  }, []);
 
   if (error) {
     return (
@@ -73,7 +71,7 @@ export default function MapScreen() {
         <Header title="Peta Wisata" showBack />
         <ErrorState
           message="Failed to load destinations. Please check your connection and try again."
-          onRetry={handleRetry}
+          onRetry={refetch}
         />
       </SafeAreaView>
     );
@@ -87,42 +85,52 @@ export default function MapScreen() {
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.map}
-          initialRegion={initialRegion}
+          initialRegion={INDONESIA_CENTER}
           showsUserLocation={true}
           showsMyLocationButton={true}
           zoomEnabled={true}
           scrollEnabled={true}
           rotateEnabled={true}
+          accessibilityLabel="Interactive map of Indonesian tourist destinations"
         >
-          {wisata
-            .filter(item => item.coordinates.latitude !== 0 && item.coordinates.longitude !== 0)
-            .map((item, index) => (
-              <Marker
-                key={`${item.id}-${index}`}
-                coordinate={{
-                  latitude: item.coordinates.latitude,
-                  longitude: item.coordinates.longitude,
-                }}
-                title={item.nama}
-                description={item.short_desc}
-                onPress={() => handleMarkerPress(item)}
-              >
-                <Image
-                  source={require('../assets/images/location.png')}
-                  style={{ width: 40, height: 40 }}
-                  resizeMode="contain"
-                />
-              </Marker>
-            ))}
+          {validWisata.map((item) => (
+            <Marker
+              key={`marker-${item.id}`}
+              coordinate={{
+                latitude: item.coordinates.latitude,
+                longitude: item.coordinates.longitude,
+              }}
+              title={item.nama}
+              description={item.short_desc}
+              onPress={() => handleMarkerPress(item)}
+              accessibilityLabel={`Destination: ${item.nama}`}
+              accessibilityHint={`${item.short_desc}. Press to view details.`}
+            >
+              <Ionicons
+                name="location"
+                size={40}
+                color={colors.primary}
+              />
+            </Marker>
+          ))}
         </MapView>
 
         {/* Selected Wisata Card */}
         {selectedWisata && (
-          <View style={[styles.cardContainer, { backgroundColor: colors.cardBackground }]}>
+          <View
+            style={[
+              styles.cardContainer,
+              { backgroundColor: colors.cardBackground },
+            ]}
+            accessible={true}
+            accessibilityLabel="Selected destination details"
+          >
             <TouchableOpacity
               style={styles.card}
               onPress={handleCardPress}
               activeOpacity={0.8}
+              accessibilityLabel={`Open details for ${selectedWisata.nama}`}
+              accessibilityHint="Double tap to view full details"
             >
               <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
@@ -145,7 +153,10 @@ export default function MapScreen() {
                 </View>
 
                 <Text
-                  style={[styles.cardDescription, { color: colors.textSecondary }]}
+                  style={[
+                    styles.cardDescription,
+                    { color: colors.textSecondary },
+                  ]}
                   numberOfLines={2}
                 >
                   {selectedWisata.short_desc}
@@ -153,8 +164,17 @@ export default function MapScreen() {
 
                 <View style={styles.cardFooter}>
                   <View style={styles.ratingContainer}>
-                    <Ionicons name="star" size={14} color={colors.accent} />
-                    <Text style={[styles.ratingText, { color: colors.textSecondary }]}>
+                    <Ionicons
+                      name="star"
+                      size={14}
+                      color={colors.accent}
+                    />
+                    <Text
+                      style={[
+                        styles.ratingText,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {selectedWisata.rating.toFixed(1)}
                     </Text>
                   </View>
@@ -166,7 +186,10 @@ export default function MapScreen() {
                       color={colors.textTertiary}
                     />
                     <Text
-                      style={[styles.locationText, { color: colors.textTertiary }]}
+                      style={[
+                        styles.locationText,
+                        { color: colors.textTertiary },
+                      ]}
                       numberOfLines={1}
                     >
                       {selectedWisata.location}
@@ -177,10 +200,15 @@ export default function MapScreen() {
 
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() => setSelectedWisata(null)}
+                onPress={handleCloseCard}
                 accessibilityLabel="Close destination card"
+                accessibilityHint="Double tap to close"
               >
-                <Ionicons name="close" size={20} color={colors.textSecondary} />
+                <Ionicons
+                  name="close"
+                  size={20}
+                  color={colors.textSecondary}
+                />
               </TouchableOpacity>
             </TouchableOpacity>
           </View>
@@ -188,8 +216,17 @@ export default function MapScreen() {
 
         {/* Loading Overlay */}
         {loading && (
-          <View style={styles.loadingOverlay}>
-            <ShimmerDetail />
+          <View
+            style={[
+              styles.loadingOverlay,
+              { backgroundColor: 'rgba(0, 0, 0, 0.3)' },
+            ]}
+          >
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+              accessibilityLabel="Loading destinations"
+            />
           </View>
         )}
       </View>
@@ -291,7 +328,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,0 +1,315 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "nama": "Candi Borobudur",
+        "kategori": "Sejarah",
+        "short_desc": "Keajaiban dunia kuno di jantung Jawa.",
+        "long_desc": "Borobudur adalah candi Buddha terbesar di dunia yang dibangun pada abad ke-9. Monumen ini terdiri dari enam teras bujur sangkar yang diatasnya terdapat tiga pelataran melingkar, dihiasi dengan 2.672 panel relief dan 504 arca Buddha. Pemandangan matahari terbit dari puncaknya adalah pengalaman spiritual yang tak terlupakan.",
+        "hours": "06:30 - 16:30",
+        "price": "Rp 50.000 (Lokal)",
+        "rating": 4.9,
+        "tags": [
+          "UNESCO",
+          "Sejarah",
+          "Arsitektur"
+        ],
+        "location": "Magelang, Jawa Tengah",
+        "images": [
+          "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1628488321453-4874313fa480?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1605615701831-2975971c2656?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          110.2038,
+          -7.6079
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "nama": "Gunung Bromo",
+        "kategori": "Gunung",
+        "short_desc": "Lautan pasir dan kawah ikonik di Jawa Timur.",
+        "long_desc": "Gunung Bromo menawarkan pengalaman petualangan epik dengan jeep tour menembus lautan pasir, menyaksikan matahari terbit dari Penanjakan, dan trekking ke bibir kawah yang masih aktif mengepulkan asap belerang.",
+        "hours": "24 Jam",
+        "price": "Rp 34.000 (Lokal)",
+        "rating": 4.8,
+        "tags": [
+          "Petualangan",
+          "Sunrise",
+          "Gunung"
+        ],
+        "location": "Probolinggo, Jawa Timur",
+        "images": [
+          "https://images.unsplash.com/photo-1605307399863-79d85d774f07?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1534234828563-0259e4b341f2?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.9533,
+          -7.9429
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "nama": "Tanah Lot",
+        "kategori": "Budaya",
+        "short_desc": "Pura sakral di atas batu karang samudera.",
+        "long_desc": "Pura Tanah Lot adalah salah satu dari tujuh pura laut di pesisir Bali. Terkenal dengan latar belakang matahari terbenam yang dramatis dan ular suci penjaga gua di dasar tebing.",
+        "hours": "07:00 - 19:00",
+        "price": "Rp 20.000",
+        "rating": 4.7,
+        "tags": [
+          "Pura",
+          "Sunset",
+          "Bali"
+        ],
+        "location": "Tabanan, Bali",
+        "images": [
+          "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1558273614-25de118809e6?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.0884,
+          -8.6212
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "nama": "Pulau Padar",
+        "kategori": "Pantai",
+        "short_desc": "Pemandangan tiga teluk warna-warni yang surealis.",
+        "long_desc": "Bagian dari Taman Nasional Komodo, Pulau Padar terkenal dengan titik pandang puncaknya yang memperlihatkan tiga pantai dengan warna pasir berbeda: putih, hitam, dan merah muda (pink beach).",
+        "hours": "06:00 - 18:00",
+        "price": "Rp 150.000 (TN Komodo)",
+        "rating": 5.0,
+        "tags": [
+          "Labuan Bajo",
+          "Hiking",
+          "Global"
+        ],
+        "location": "Manggarai Barat, NTT",
+        "images": [
+          "https://images.unsplash.com/photo-1596395819057-d3752e55dc42?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1505388053702-86dd95ca3207?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          119.5517,
+          -8.6539
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "nama": "Raja Ampat",
+        "kategori": "Pantai",
+        "short_desc": "Surga terakhir di bumi untuk penyelam.",
+        "long_desc": "Kepulauan Raja Ampat di Papua Barat adalah pusat segitiga karang dunia. Menawarkan keanekaragaman hayati laut terkaya di planet ini, dengan laguna biru jernih dan gugusan pulau karst ikonik seperti Wayag dan Piaynemo.",
+        "hours": "24 Jam",
+        "price": "Rp 500.000 (PIN Masuk)",
+        "rating": 5.0,
+        "tags": [
+          "Diving",
+          "Papua",
+          "Eksotis"
+        ],
+        "location": "Raja Ampat, Papua Barat D.",
+        "images": [
+          "https://images.unsplash.com/photo-1516690561799-46d8f74f9dab?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1573790387438-4da905039392?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1534068590799-09895a701e3e?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          130.5170,
+          -0.2330
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "nama": "Ubud Monkey Forest",
+        "kategori": "Budaya",
+        "short_desc": "Hutan sakral hunian ratusan monyet ekor panjang.",
+        "long_desc": "Mandala Suci Wenara Wana adalah cagar alam dan kompleks pura di Ubud, Bali. Tempat ini adalah rumah bagi monyet macaca fascicularis dan memiliki tiga pura suci di tengah hutan yang rimbun.",
+        "hours": "09:00 - 18:00",
+        "price": "Rp 80.000",
+        "rating": 4.6,
+        "tags": [
+          "Alam",
+          "Satwa",
+          "Bali"
+        ],
+        "location": "Gianyar, Bali",
+        "images": [
+          "https://images.unsplash.com/photo-1537042145484-6fdfdf0f3299?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1476900164809-ff19b8ae5968?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1601952317326-0a6493dc2f99?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.2595,
+          -8.5190
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "nama": "Jalan Malioboro",
+        "kategori": "Kuliner",
+        "short_desc": "Beningnya malam Jogja dan kuliner angkringan.",
+        "long_desc": "Jantung kota Yogyakarta yang tak pernah tidur. Malioboro adalah tempat terbaik untuk berburu batik, menikmati kopi joss di angkringan, dan merasakan suasana romantis kota pelajar diringi musik musisi jalanan.",
+        "hours": "24 Jam",
+        "price": "Gratis",
+        "rating": 4.5,
+        "tags": [
+          "Belanja",
+          "Kota",
+          "Malam"
+        ],
+        "location": "Kota Yogyakarta, DIY",
+        "images": [
+          "https://images.unsplash.com/photo-1584810359583-96fc3448c4a9?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1608885829623-d6c5796c3444?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1582294109315-46740667e412?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          110.3658,
+          -7.7926
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "nama": "Kawah Ijen",
+        "kategori": "Gunung",
+        "short_desc": "Fenomena api biru abadi yang langka di dunia.",
+        "long_desc": "Salah satu dari dua tempat di dunia tempat Anda bisa melihat 'Blue Fire'. Kawah Ijen juga menawarkan pemandangan danau asam berwarna turkis terbesar di dunia yang dikelilingi tebing belerang.",
+        "hours": "01:00 - 12:00",
+        "price": "Rp 15.000",
+        "rating": 4.9,
+        "tags": [
+          "Hiking",
+          "Fenomena",
+          "Malam"
+        ],
+        "location": "Bondowoso, Jawa Timur",
+        "images": [
+          "https://images.unsplash.com/photo-1549479905-18ee91114cd3?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1543789397-9cc72778da55?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1422405021588-444453303c2a?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.2425,
+          -8.0580
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "nama": "Danau Toba",
+        "kategori": "Alam",
+        "short_desc": "Danau kawah terbesar di Asia Tenggara.",
+        "long_desc": "Terhampar luas seperti lautan di tengah pegunungan Sumatera Utara. Pulau Samosir di tengahnya merupakan pusat kebudayaan Batak Toba yang kaya akan tradisi tenun ulos dan tarian tor-tor.",
+        "hours": "24 Jam",
+        "price": "Gratis",
+        "rating": 4.7,
+        "tags": [
+          "Danau",
+          "Geopark",
+          "Batak"
+        ],
+        "location": "Toba Samosir, Sumut",
+        "images": [
+          "https://images.unsplash.com/photo-1545562083-afa01dd58838?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1550965380-49272338e55e?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1598282361177-33230c309831?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          98.8800,
+          2.6100
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "nama": "Nusa Penida",
+        "kategori": "Pantai",
+        "short_desc": "Tebing Kelingking yang ikonik seperti T-Rex.",
+        "long_desc": "Pulau liar di lepas pantai Bali dengan pemandangan tebing dramatis dan pantai perawan. Kelingking Beach, Diamond Beach, dan Angel's Billabong adalah spot wajib bagi para pemburu foto.",
+        "hours": "24 Jam",
+        "price": "Gratis (Parkir Rp 5rb)",
+        "rating": 4.8,
+        "tags": [
+          "Instagrammable",
+          "Laut",
+          "Tebing"
+        ],
+        "location": "Klungkung, Bali",
+        "images": [
+          "https://images.unsplash.com/photo-1532186651327-6ac23687d078?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1574229676609-8b832b4b3917?auto=format&fit=crop&w=800&q=80"
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.5444,
+          -8.7278
+        ]
+      }
+    }
+  ]
+}
